@@ -1,0 +1,7 @@
+.git
+bin
+data
+server
+archive-orchestrator
+*.log
+.DS_Store

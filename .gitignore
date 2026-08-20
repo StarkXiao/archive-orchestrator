@@ -1,0 +1,10 @@
+# Local runtime state and build outputs
+data/
+server
+archive-orchestrator
+*.log
+
+# Editor and operating-system files
+.DS_Store
+.idea/
+.vscode/
