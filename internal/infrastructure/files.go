@@ -135,7 +135,7 @@ func (f *Files) Restore(_ context.Context, b domain.Batch, target, conflict stri
 			r.Failed++
 			r.Errors = append(r.Errors, x.Source)
 			_ = os.Remove(temp)
-		} else if sum, n, e := digest(temp); false && (e != nil || sum != x.SHA256 || n != x.Size) {
+		} else if sum, n, e := digest(temp); e != nil || sum != x.SHA256 || n != x.Size {
 			r.Failed++
 			r.Errors = append(r.Errors, x.Source)
 			_ = os.Remove(temp)
