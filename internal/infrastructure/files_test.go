@@ -50,3 +50,65 @@ func TestCreatePreservesRelativePathsAndRestores(t *testing.T) {
 		}
 	}
 }
+
+func TestCreateRejectsSourcesOutsideRoot(t *testing.T) {
+	root := t.TempDir()
+	source, archive := filepath.Join(root, "source"), filepath.Join(root, "archive")
+	sibling := filepath.Join(root, "source-other")
+	for _, p := range []string{
+		filepath.Join(sibling, "report.txt"), // sibling of source root
+		filepath.Join(sibling, "x", "report.txt"),
+		filepath.Join(root, "report.txt"), // parent of source root
+	} {
+		if err := os.MkdirAll(filepath.Dir(p), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte("data"), 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	store, err := NewStore(filepath.Join(root, "state.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	files := NewFiles(store)
+	cases := []string{
+		filepath.Join(sibling, "report.txt"),
+		filepath.Join(sibling, "x", "report.txt"),
+		filepath.Join(root, "report.txt"),
+	}
+	for i, src := range cases {
+		_, err := files.Create(context.Background(),
+			domain.Rule{SourceRoot: source, ArchiveRoot: archive}, "job-1",
+			[]domain.ManifestEntry{{Source: src, ModifiedAt: time.Now()}})
+		if err == nil {
+			t.Fatalf("case %d src=%s: expected error for out-of-root source", i, src)
+		}
+	}
+}
+
+func TestCreateAllowsNestedSourcesInsideRoot(t *testing.T) {
+	root := t.TempDir()
+	source, archive := filepath.Join(root, "source"), filepath.Join(root, "archive")
+	src := filepath.Join(source, "deep", "nested", "report.txt")
+	if err := os.MkdirAll(filepath.Dir(src), 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(src, []byte("data"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	store, err := NewStore(filepath.Join(root, "state.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	files := NewFiles(store)
+	batch, err := files.Create(context.Background(),
+		domain.Rule{SourceRoot: source, ArchiveRoot: archive}, "job-1",
+		[]domain.ManifestEntry{{Source: src, ModifiedAt: time.Now()}})
+	if err != nil {
+		t.Fatalf("nested in-root source should be allowed, got %v", err)
+	}
+	if got := batch.Entries[0].Archive; !filepath.IsAbs(got) {
+		t.Fatalf("archive path not absolute: %s", got)
+	}
+}

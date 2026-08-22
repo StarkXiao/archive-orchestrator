@@ -5,6 +5,7 @@ import (
 	"archive-orchestrator/internal/infrastructure"
 	"context"
 	"path/filepath"
+	"strings"
 )
 
 type Batches struct {
@@ -43,7 +44,7 @@ func (b *Batches) Restore(c context.Context, id, target, conflict string) (domai
 		return domain.Job{}, e
 	}
 	rel, e := filepath.Rel(root, destination)
-	if e != nil || rel == "." {
+	if e != nil || rel == "." || strings.HasPrefix(rel, "..") {
 		return domain.Job{}, domain.ErrInvalid
 	}
 	if conflict != "skip" && conflict != "overwrite" {
