@@ -50,3 +50,35 @@ func TestCreatePreservesRelativePathsAndRestores(t *testing.T) {
 		}
 	}
 }
+
+func TestCopyFileKeepsDestinationOnSuccess(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "in.txt")
+	dst := filepath.Join(dir, "out.txt")
+	if err := os.WriteFile(src, []byte("hello"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	if err := copyFile(src, dst); err != nil {
+		t.Fatalf("copyFile: %v", err)
+	}
+	got, err := os.ReadFile(dst)
+	if err != nil {
+		t.Fatalf("destination removed after successful copy: %v", err)
+	}
+	if string(got) != "hello" {
+		t.Fatalf("destination content = %q, want %q", got, "hello")
+	}
+}
+
+func TestCopyFileRemovesDestinationOnFailure(t *testing.T) {
+	dir := t.TempDir()
+	src := filepath.Join(dir, "missing.txt")
+	dst := filepath.Join(dir, "out.txt")
+	if err := copyFile(src, dst); err == nil {
+		t.Fatal("copyFile with missing source: want error, got nil")
+	}
+	if _, err := os.Stat(dst); err == nil {
+		t.Fatal("destination left behind after failed copy")
+	}
+}
+

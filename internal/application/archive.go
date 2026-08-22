@@ -48,7 +48,7 @@ func (a *Archive) Run(c context.Context, j domain.Job) (domain.Batch, error) {
 	}
 	b, e := a.files.Create(c, j.RuleSnapshot, j.ID, entries)
 	if e != nil {
-		return domain.Batch{}, fmt.Errorf("archive batch creation failed: %v", e)
+		return domain.Batch{}, fmt.Errorf("archive batch creation failed: %w", e)
 	}
 	return b, nil
 }

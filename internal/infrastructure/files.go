@@ -91,10 +91,20 @@ func copyFile(a, b string) error {
 	if e != nil {
 		return e
 	}
-	defer out.Close()
-	defer os.Remove(b)
-	_, e = io.Copy(out, in)
-	return e
+	// Close the destination before deciding whether to keep it; a successful
+	// result must not be cleaned up, and the handle must be closed regardless.
+	closeAndMaybeRemove := func(keep bool) {
+		_ = out.Close()
+		if !keep {
+			_ = os.Remove(b)
+		}
+	}
+	if _, e := io.Copy(out, in); e != nil {
+		closeAndMaybeRemove(false)
+		return e
+	}
+	closeAndMaybeRemove(true)
+	return nil
 }
 func (f *Files) Verify(_ context.Context, b domain.Batch) (domain.VerifyReport, error) {
 	r := domain.VerifyReport{Files: len(b.Entries)}
