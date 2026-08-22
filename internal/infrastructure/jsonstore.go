@@ -92,7 +92,7 @@ func (s *Store) GetRule(_ context.Context, id string) (domain.Rule, error) {
 func (s *Store) ListRules(_ context.Context) ([]domain.Rule, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return append([]domain.Rule(nil), s.state.Rules...), nil
+	return s.state.Rules, nil
 }
 func (s *Store) DeleteRule(c context.Context, id string) error {
 	s.mu.Lock()

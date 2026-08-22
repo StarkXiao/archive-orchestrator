@@ -4,6 +4,7 @@ import (
 	"archive-orchestrator/internal/domain"
 	"archive-orchestrator/internal/infrastructure"
 	"context"
+	"strings"
 	"time"
 )
 
@@ -22,7 +23,16 @@ func (r *Rules) Create(c context.Context, v domain.Rule) (domain.Rule, error) {
 	return v, r.db.SaveRule(c, v)
 }
 func (r *Rules) Get(c context.Context, id string) (domain.Rule, error) { return r.db.GetRule(c, id) }
-func (r *Rules) List(c context.Context) ([]domain.Rule, error)         { return r.db.ListRules(c) }
+func (r *Rules) List(c context.Context) ([]domain.Rule, error) {
+	v, e := r.db.ListRules(c)
+	if e != nil {
+		return nil, e
+	}
+	for i := range v {
+		v[i].Name = strings.TrimSpace(v[i].Name)
+	}
+	return v, nil
+}
 func (r *Rules) Update(c context.Context, v domain.Rule) (domain.Rule, error) {
 	old, e := r.db.GetRule(c, v.ID)
 	if e != nil {
