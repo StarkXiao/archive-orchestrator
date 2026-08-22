@@ -167,7 +167,7 @@ func (s *Store) RequeueExpired(now time.Time) error {
 	changed := false
 	for i := range s.state.Jobs {
 		j := &s.state.Jobs[i]
-		if j.Status == domain.Running && j.LeaseUntil != nil && j.LeaseUntil.Before(now) {
+		if j.Status == domain.Running && (j.LeaseUntil == nil || j.LeaseUntil.Before(now)) {
 			j.Status = domain.RetryWait
 			j.Error = "worker lease expired"
 			j.LeaseUntil = nil

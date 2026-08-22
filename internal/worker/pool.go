@@ -32,7 +32,7 @@ func (p *Pool) loop(c context.Context, workerID string) {
 		case <-c.Done():
 			return
 		case now := <-t.C:
-			_ = p.db.RequeueExpired(now)
+			_ = p.db.RequeueExpired(requeueDeadline(now))
 			js, _ := p.jobs.List(c)
 			for _, j := range js {
 				if j.Status == domain.Pending || (j.Status == domain.RetryWait && (j.RetryAt == nil || !j.RetryAt.After(now))) {
@@ -49,6 +49,8 @@ func (p *Pool) loop(c context.Context, workerID string) {
 		}
 	}
 }
+
+func requeueDeadline(now time.Time) time.Time { return now.Add(time.Minute) }
 
 func (p *Pool) runClaimed(ctx context.Context, job domain.Job) error {
 	done := make(chan struct{})
