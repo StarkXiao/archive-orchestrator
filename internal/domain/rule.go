@@ -39,7 +39,7 @@ func (r Rule) Validate() error {
 		return ErrInvalid
 	}
 	if _, e := filepath.Match(r.Pattern, ""); e != nil {
-		return fmt.Errorf("invalid archive pattern: %v", ErrInvalid)
+		return fmt.Errorf("invalid archive pattern %q: %w", r.Pattern, ErrInvalid)
 	}
 	s, e := filepath.Abs(r.SourceRoot)
 	if e != nil {

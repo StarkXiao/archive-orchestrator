@@ -13,7 +13,7 @@ type Rules struct{ db *infrastructure.Store }
 func NewRules(db *infrastructure.Store) *Rules { return &Rules{db: db} }
 func (r *Rules) Create(c context.Context, v domain.Rule) (domain.Rule, error) {
 	if e := v.Validate(); e != nil {
-		return v, fmt.Errorf("rule validation failed: %v", e)
+		return v, fmt.Errorf("rule validation failed: %w", e)
 	}
 	v.ID = infrastructure.NewID("rule")
 	v.Version = 1
