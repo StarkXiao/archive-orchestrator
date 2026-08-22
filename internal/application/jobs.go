@@ -26,6 +26,7 @@ func (j *Jobs) Retry(c context.Context, id string) (domain.Job, error) {
 	}
 	v.Status = domain.RetryWait
 	v.Error = ""
+	v.RetryAt = nil
 	return v, j.db.SaveJob(c, v)
 }
 func (j *Jobs) Cancel(c context.Context, id string) (domain.Job, error) {

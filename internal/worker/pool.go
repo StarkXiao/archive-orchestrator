@@ -35,7 +35,7 @@ func (p *Pool) loop(c context.Context, workerID string) {
 			_ = p.db.RequeueExpired(now)
 			js, _ := p.jobs.List(c)
 			for _, j := range js {
-				if j.Status == domain.Pending || (j.Status == domain.RetryWait && (j.RetryAt == nil || !j.RetryAt.After(now))) {
+				if readyForClaim(j, now) {
 					if claimed, e := p.db.Claim(c, j.ID, workerID); e == nil {
 						if e = p.runClaimed(c, claimed); e != nil {
 							latest, getErr := p.jobs.Get(c, claimed.ID)
@@ -48,6 +48,10 @@ func (p *Pool) loop(c context.Context, workerID string) {
 			}
 		}
 	}
+}
+
+func readyForClaim(j domain.Job, now time.Time) bool {
+	return j.Status == domain.Pending || (j.Status == domain.RetryWait && !j.RetryAt.After(now))
 }
 
 func (p *Pool) runClaimed(ctx context.Context, job domain.Job) error {
