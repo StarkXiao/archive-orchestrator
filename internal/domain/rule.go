@@ -32,10 +32,10 @@ type Rule struct {
 
 func (r Rule) Validate() error {
 	if r.Name == "" || r.SourceRoot == "" || r.ArchiveRoot == "" || r.Pattern == "" {
-		return ErrInvalid
+		return errors.New(ErrInvalid.Error())
 	}
 	if r.RetentionDays < 0 || r.IntervalMinutes < 1 || r.MaxFiles < 1 || r.MaxAttempts < 1 {
-		return ErrInvalid
+		return errors.New(ErrInvalid.Error())
 	}
 	s, e := filepath.Abs(r.SourceRoot)
 	if e != nil {

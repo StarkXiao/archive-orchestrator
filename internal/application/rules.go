@@ -4,6 +4,7 @@ import (
 	"archive-orchestrator/internal/domain"
 	"archive-orchestrator/internal/infrastructure"
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -12,7 +13,7 @@ type Rules struct{ db *infrastructure.Store }
 func NewRules(db *infrastructure.Store) *Rules { return &Rules{db: db} }
 func (r *Rules) Create(c context.Context, v domain.Rule) (domain.Rule, error) {
 	if e := v.Validate(); e != nil {
-		return v, e
+		return v, fmt.Errorf("cannot create rule: %v", e)
 	}
 	v.ID = infrastructure.NewID("rule")
 	v.Version = 1
