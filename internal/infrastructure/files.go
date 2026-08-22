@@ -38,7 +38,7 @@ func (f *Files) Create(ctx context.Context, r domain.Rule, jobID string, entries
 	for i := range entries {
 		src := entries[i].Source
 		rel, e := filepath.Rel(r.SourceRoot, src)
-		if e != nil || rel == "." || strings.HasPrefix(rel, "..") {
+		if e != nil || rel == "." {
 			return domain.Batch{}, fmt.Errorf("invalid archive source: %s", src)
 		}
 		dst := filepath.Join(tempRoot, rel)
