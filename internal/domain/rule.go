@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"time"
@@ -36,6 +37,9 @@ func (r Rule) Validate() error {
 	}
 	if r.RetentionDays < 0 || r.IntervalMinutes < 1 || r.MaxFiles < 1 || r.MaxAttempts < 1 {
 		return ErrInvalid
+	}
+	if _, e := filepath.Match(r.Pattern, ""); e != nil {
+		return fmt.Errorf("invalid archive pattern: %v", ErrInvalid)
 	}
 	s, e := filepath.Abs(r.SourceRoot)
 	if e != nil {
