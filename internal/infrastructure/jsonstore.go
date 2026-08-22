@@ -167,7 +167,11 @@ func (s *Store) RequeueExpired(now time.Time) error {
 	changed := false
 	for i := range s.state.Jobs {
 		j := &s.state.Jobs[i]
-		if j.Status == domain.Running && (j.LeaseUntil == nil || j.LeaseUntil.Before(now)) {
+		// A running job with no lease recorded yet has just been claimed and the
+		// lease may still be in flight; treat that as "lease missing" rather than
+		// expired so we don't yank it back to retry_wait before the lease lands.
+		// Only requeue a lease that exists and is already past its deadline.
+		if j.Status == domain.Running && j.LeaseUntil != nil && j.LeaseUntil.Before(now) {
 			j.Status = domain.RetryWait
 			j.Error = "worker lease expired"
 			j.LeaseUntil = nil
