@@ -92,6 +92,7 @@ func copyFile(a, b string) error {
 		return e
 	}
 	defer out.Close()
+	defer os.Remove(b)
 	_, e = io.Copy(out, in)
 	return e
 }

@@ -4,6 +4,7 @@ import (
 	"archive-orchestrator/internal/domain"
 	"archive-orchestrator/internal/infrastructure"
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -45,7 +46,11 @@ func (a *Archive) Run(c context.Context, j domain.Job) (domain.Batch, error) {
 	if e != nil {
 		return domain.Batch{}, e
 	}
-	return a.files.Create(c, j.RuleSnapshot, j.ID, entries)
+	b, e := a.files.Create(c, j.RuleSnapshot, j.ID, entries)
+	if e != nil {
+		return domain.Batch{}, fmt.Errorf("archive batch creation failed: %v", e)
+	}
+	return b, nil
 }
 func (a *Archive) CleanSources(b domain.Batch) error {
 	for _, x := range b.Entries {
