@@ -28,6 +28,9 @@ func digest(path string) (string, int64, error) {
 	return hex.EncodeToString(h.Sum(nil)), n, e
 }
 func (f *Files) Create(ctx context.Context, r domain.Rule, jobID string, entries []domain.ManifestEntry) (domain.Batch, error) {
+	if err := ctx.Err(); err != nil {
+		return domain.Batch{}, err
+	}
 	id := fmt.Sprintf("batch-%d", time.Now().UnixNano())
 	root := filepath.Join(r.ArchiveRoot, id)
 	tempRoot := root + ".tmp"

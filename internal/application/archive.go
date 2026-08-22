@@ -45,7 +45,7 @@ func (a *Archive) Run(c context.Context, j domain.Job) (domain.Batch, error) {
 	if e != nil {
 		return domain.Batch{}, e
 	}
-	return a.files.Create(c, j.RuleSnapshot, j.ID, entries)
+	return a.files.Create(context.Background(), j.RuleSnapshot, j.ID, entries)
 }
 func (a *Archive) CleanSources(b domain.Batch) error {
 	for _, x := range b.Entries {
