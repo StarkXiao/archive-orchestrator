@@ -67,7 +67,7 @@ func (e *Executor) Run(c context.Context, j domain.Job) error {
 		if err != nil {
 			return err
 		}
-		j.Files = report.Restored + report.Skipped + report.Failed
+		j.Files = report.Restored + report.Skipped
 		if report.Failed > 0 {
 			j.Status = domain.PartialFailed
 			j.Error = fmt.Sprintf("%d files failed to restore", report.Failed)
