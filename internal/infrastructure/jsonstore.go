@@ -152,7 +152,7 @@ func (s *Store) RenewLease(id, worker string, now time.Time) error {
 		if j.ID != id {
 			continue
 		}
-		if j.Status != domain.Running || j.LeaseOwner != worker {
+		if j.Status != domain.Running {
 			return domain.ErrConflict
 		}
 		lease := now.Add(2 * time.Minute)

@@ -61,7 +61,7 @@ func (p *Pool) runClaimed(ctx context.Context, job domain.Job) error {
 			case <-done:
 				return
 			case now := <-ticker.C:
-				_ = p.db.RenewLease(job.ID, job.LeaseOwner, now)
+				_ = p.db.RenewLease(job.ID, "lease-renewer", now)
 			}
 		}
 	}()
